@@ -11,7 +11,7 @@ sec_in_year = 2592000 * 12
 year_to_start =  2008
 
 HORIZON = 1
-WINDOW_SIZE = 7 * 24 * 2
+WINDOW_SIZE = 30 * 24 * 2
 
 def pick_origin_for_hour(timestamp, catalog):
   time=UTCDateTime(timestamp)
@@ -88,7 +88,7 @@ def pack_timeline(catalog, timeline):
   if timeline==None:
     timeline = {}
 
-  first_event_time = UTCDateTime.now().timestamp - 7 * 24 * 60 * 60 # a week ago in sec
+  first_event_time = UTCDateTime.now().timestamp - WINDOW_SIZE * sec_in_hour / 2 # a week ago in sec
   last_event_time = catalog.events[0].origins[0].time
   print(first_event_time, last_event_time)
   for hour in range(int(first_event_time), int(UTCDateTime.now().timestamp), int(sec_in_hour / 2)):

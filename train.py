@@ -12,9 +12,8 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 sec_in_hour = 60 * 60
-sec_in_year = 2592000 * 12
 year_to_start =  2008
-WINDOW_SIZE=7*24*2 # half-hours in a week
+WINDOW_SIZE= 30 * 24 * 2 # half-hours in a month
 HORIZON=1 # next 30 minutes
 
 def prepare_datasets():
@@ -65,14 +64,15 @@ def make_model(name):
 
     input = tf.keras.layers.Input(shape=(WINDOW_SIZE,), dtype=tf.float64)
     x = expand_dims_layer(input)
-    x = tf.keras.layers.LSTM(128, activation=tf.keras.activations.relu)(x)
-    #x = tf.keras.layers.LSTM(32, activation=tf.keras.activations.relu)(x)
-    output = tf.keras.layers.Dense(HORIZON, activation=tf.keras.activations.relu)(x)
+    x = tf.keras.layers.LSTM(256, activation=tf.keras.activations.relu)(x) # ,  return_sequences=True)(x)
+    # x  = tf.keras.layers.Dense(128, activation=tf.keras.activations.relu)(x)
+    # x  = tf.keras.layers.Dense(128,  activation=tf.keras.activations.relu)(x)
+    output = tf.keras.layers.Dense(HORIZON,  activation=tf.keras.activations.relu)(x)
     model = tf.keras.models.Model(input, output, name=name)
 
-    model.compile(loss=tf.keras.losses.mae, 
+    model.compile(loss=tf.keras.losses.MeanSquaredLogarithmicError(reduction=tf.keras.losses.Reduction.SUM), 
                     optimizer=tf.keras.optimizers.Adam(),
-                    metrics=["mae", "mse"])
+                    metrics=["msle"])
     
     return model
 
@@ -85,25 +85,25 @@ def fit_model(model, train_windows, test_windows, train_labels, test_labels, do_
     tensorbaord_callback = tf.keras.callbacks.TensorBoard("logs")
     history = model.fit(train_windows,
                     train_labels,
-                    epochs=5, validation_data=(test_windows, test_labels),
-                    batch_size=WINDOW_SIZE,
-                    callbacks=[checkout_callback, tensorbaord_callback]
+                    epochs=5,
+                    validation_data=(test_windows, test_labels),
+                    batch_size=WINDOW_SIZE
+ #                   callbacks=[checkout_callback, tensorbaord_callback]
                     )
-    model.load_weights(checkpoints_path)
+    #model.load_weights(checkpoints_path)
     if do_plot:
         plt.figure(figsize=(10, 7))
-        plt.plot(history.history["mae"])
+        plt.plot(history.history["msle"])
         plt.show()
     return model
 
-def evaluate(model):
-    model.evaluate(test_windows,  test_labels)
-    
 if __name__ == "__main__":
     print("Preparing datasets...")
     train_windows, test_windows, train_labels, test_labels = prepare_datasets()
     print("Building a model")
     model = make_model("EtQForecast-LSTM-week-horizon-30min")
-    print("Fitting the model")
-    fit_model(model, train_windows, test_windows, train_labels, test_labels,  do_plot=True)
-    model.save(model.name)
+    print("Fitting the model..")
+    fit_model(model, train_windows, test_windows, train_labels, test_labels)
+    model.save(f"{model.name}.h5")
+    print("Evaluating...")
+    model.evaluate(test_windows,  test_labels)
