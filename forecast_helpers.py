@@ -33,13 +33,10 @@ def pack_timeline(catalog, timeline):
     timeline = {}
 
   first_event_time = UTCDateTime.now().timestamp - 7 * 24 * 60 * 60  #  catalog.events[-1].origins[-1].time
-  print(f"timestamp now:{UTCDateTime.now().timestamp} firsteventtime:{first_event_time}")
   last_event_time = catalog.events[0].origins[0].time
-  print(first_event_time, last_event_time)
   for hour in range(int(first_event_time), int(UTCDateTime.now().timestamp), int(sec_in_hour / 2)):
     events = pick_origin_for_hour(hour, catalog)
     if events.count() > 0 and len(events[0].magnitudes) > 0:
-      print(f"hour: {hour} event: {events[0]} mags: {events[0].magnitudes}")
       timeline[hour] = events[0].magnitudes[0].mag
     else:
       timeline[hour] = 0
@@ -90,11 +87,9 @@ def pack_timeline(catalog, timeline):
 
   first_event_time = UTCDateTime.now().timestamp - WINDOW_SIZE * sec_in_hour / 2 # a week ago in sec
   last_event_time = catalog.events[0].origins[0].time
-  print(first_event_time, last_event_time)
   for hour in range(int(first_event_time), int(UTCDateTime.now().timestamp), int(sec_in_hour / 2)):
     events = pick_origin_for_hour(hour, catalog)
     if events.count() > 0 and len(events[0].magnitudes) > 0:
-      print(f"hour: {hour} event: {events[0]} mags: {events[0].magnitudes}")
       timeline[hour] = events[0].magnitudes[0].mag
     else:
       timeline[hour] = 0
