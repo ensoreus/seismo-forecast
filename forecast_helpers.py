@@ -10,9 +10,6 @@ sec_in_hour = 60 * 60
 sec_in_year = 2592000 * 12
 year_to_start =  2008
 
-HORIZON = 1
-WINDOW_SIZE = 30 * 24 * 2
-
 def pick_origin_for_hour(timestamp, catalog):
   time=UTCDateTime(timestamp)
   time.minute = 0
@@ -27,22 +24,7 @@ def pick_origin_for_hour(timestamp, catalog):
   filtered = catalog.filter(f"time >= {start_time_filter_str}", f"time <= {end_time_filter_str}")
   return filtered
 
-def pack_timeline(catalog, timeline):
-      
-  if timeline==None:
-    timeline = {}
-
-  first_event_time = UTCDateTime.now().timestamp - 7 * 24 * 60 * 60  #  catalog.events[-1].origins[-1].time
-  last_event_time = catalog.events[0].origins[0].time
-  for hour in range(int(first_event_time), int(UTCDateTime.now().timestamp), int(sec_in_hour / 2)):
-    events = pick_origin_for_hour(hour, catalog)
-    if events.count() > 0 and len(events[0].magnitudes) > 0:
-      timeline[hour] = events[0].magnitudes[0].mag
-    else:
-      timeline[hour] = 0
-  return timeline
-
-def get_labelled_windows(x, horizon=HORIZON):
+def get_labelled_windows(x, horizon):
   """
   Creates labels for windowed dataset.
 
@@ -53,7 +35,7 @@ def get_labelled_windows(x, horizon=HORIZON):
   return x[:, :-horizon], x[:, -horizon:]
 
 # Create function to view numpy arrays as windows
-def make_windows(x, window_size=WINDOW_SIZE, horizon=HORIZON):
+def make_windows(x, window_size, horizon):
   """
   Turns a 1D array into a 2D array of sequential labelled windows of window_size with horizon size labels.
   """
@@ -80,12 +62,12 @@ def make_train_test_splits(windows, labels, test_split=0.2):
   test_labels = labels[split_size:]
   return train_windows, test_windows, train_labels, test_labels
 
-def pack_timeline(catalog, timeline):
+def pack_timeline(catalog, window_size, timeline=None):
   
   if timeline==None:
     timeline = {}
 
-  first_event_time = UTCDateTime.now().timestamp - WINDOW_SIZE * sec_in_hour / 2 # a week ago in sec
+  first_event_time = UTCDateTime.now().timestamp - window_size * sec_in_hour / 2 # a week ago in sec
   last_event_time = catalog.events[0].origins[0].time
   for hour in range(int(first_event_time), int(UTCDateTime.now().timestamp), int(sec_in_hour / 2)):
     events = pick_origin_for_hour(hour, catalog)

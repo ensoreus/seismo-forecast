@@ -10,7 +10,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 sec_in_hour = 60 * 60
 
-WINDOW_SIZE=30*24*2 # half-hours in a month
+WINDOW_SIZE=14*24*2 # half-hours in a month
 HORIZON=1 # next 30 minutes
 
 predictions = {}
@@ -35,7 +35,7 @@ def predict():
     start_time = now - sec_half_an_hour * WINDOW_SIZE
     end_time = now
     pre_history_catalog = fetch_events(start_time, end_time)
-    timeline = fh.pack_timeline(pre_history_catalog, None)
+    timeline = fh.pack_timeline(pre_history_catalog, window_size=WINDOW_SIZE)
     model = tf.keras.models.load_model("EtQForecast-LSTM-week-horizon-30min.h5")
     times, mags = fh.prepare_window(timeline)
     mags= tf.reshape(mags, [1, WINDOW_SIZE])

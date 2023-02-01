@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 sec_in_hour = 60 * 60
 year_to_start =  2008
-WINDOW_SIZE= 30 * 24 * 2 # half-hours in a month
+WINDOW_SIZE= 14 * 24 * 2 # half-hours in a month
 HORIZON=1 # next 30 minutes
 
 def prepare_datasets():
@@ -36,7 +36,7 @@ def prepare_datasets():
                             longitude=26.12301,
                             maxradius=5)
 
-          mags_timeline = fh.pack_timeline(catalog, mags_timeline)
+          mags_timeline = fh.pack_timeline(catalog, mags_timeline,  window_size=WINDOW_SIZE)
           print(f"A {catalog.count()} events happened in Romania region ever since {UTCDateTime(initial_time).date} till {UTCDateTime(leap).date}")
           timeline = pd.DataFrame(mags_timeline.items())
     else:
@@ -64,7 +64,7 @@ def make_model(name):
 
     input = tf.keras.layers.Input(shape=(WINDOW_SIZE,), dtype=tf.float64)
     x = expand_dims_layer(input)
-    x = tf.keras.layers.LSTM(256, activation=tf.keras.activations.relu)(x) # ,  return_sequences=True)(x)
+    x = tf.keras.layers.LSTM(32, activation=tf.keras.activations.relu)(x) # ,  return_sequences=True)(x)
     # x  = tf.keras.layers.Dense(128, activation=tf.keras.activations.relu)(x)
     # x  = tf.keras.layers.Dense(128,  activation=tf.keras.activations.relu)(x)
     output = tf.keras.layers.Dense(HORIZON,  activation=tf.keras.activations.relu)(x)
