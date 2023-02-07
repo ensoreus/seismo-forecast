@@ -48,7 +48,7 @@ def check_predicted(pred_mag):
     # start_time_filter_str = f"{step_before.year}-{step_before.month}-{step_before.day}T{step_before.hour}:{step_before.minutes}:{step_before.seconds}.00"
     # end_time_filter_str = f"{now.year}-{now.month}-{now.day}T{now.hour}:{now.minutes}:{now.seconds}.00"
     catalog = fetch_events(step_before, now)
-    #actual_event_last_step = catalog.filter(f"time >= {start_time_filter_str}", f"time <= {end_time_filter_str}")
+    # actual_event_last_step = catalog.filter(f"time >= {start_time_filter_str}", f"time <= {end_time_filter_str}")
     
     if catalog.count() >  0 and pred_mag > 0:
         last_event_mag = catalog.events[-1].magnitudes[-1].mag

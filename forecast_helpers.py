@@ -67,8 +67,7 @@ def pack_timeline(catalog, window_size, timeline=None):
   if timeline==None:
     timeline = {}
 
-  first_event_time = UTCDateTime.now().timestamp - window_size * sec_in_hour / 2 # a week ago in sec
-  last_event_time = catalog.events[0].origins[0].time
+  first_event_time = UTCDateTime.now().timestamp - window_size * sec_in_hour / 2 # a window_size sec ago
   for hour in range(int(first_event_time), int(UTCDateTime.now().timestamp), int(sec_in_hour / 2)):
     events = pick_origin_for_hour(hour, catalog)
     if events.count() > 0 and len(events[0].magnitudes) > 0:
